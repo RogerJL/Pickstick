@@ -32,16 +32,26 @@ class Human(Player):
     def __init__(self):
         super().__init__("Human")
         self.verbose = True
+        self.visual = True
 
     def query(self, stick):
         picked = '?' if self.verbose else ''
-        self.verbose = False
         while True:
-            print(f"There are {stick.sticks} sticks on the table.")
-            if picked == '?':
-                print(f"You can pick {stick.min} to {stick.max} sticks")
-                print(f"Picker of last stick looses")
-            picked = input(f"How many sticks do you want to pick [?, {stick.min}..{stick.max}] ")
+            if self.visual:
+                if self.verbose:
+                    columns = stick.sticks // (stick.max + 1)
+                    final_rows = stick.sticks % (stick.max + 1)
+                    for row in range(stick.max + 1):
+                        print(" ❙" * columns, end="")
+                        print(" ❙" if row < final_rows else "")
+                else:
+                    print(" ❙" * stick.sticks)
+            else:
+                print(f"There are {stick.sticks} sticks on the table.")
+                if picked == '?':
+                    print(f"You can pick {stick.min} to {stick.max} sticks")
+                    print(f"Picker of last stick looses")
+            picked = input(f"How many sticks do you want to pick [?, {stick.min}..{min(stick.max, stick.sticks)}] ")
             if picked.isalnum():
                 picked = int(picked)
                 if stick.min <= picked <= stick.max and picked <= stick.sticks:
@@ -50,21 +60,30 @@ class Human(Player):
 
 
 class AI(Player):
+    def __init__(self, name="AI"):
+        super().__init__(name=name)
 
-    def __init__(self, stick):
-        super().__init__("AI")
-        self.stick = stick
+    def print_weights(self):
+        print(self.name, "WEIGHTS", "unknown")
+
+class AI_org(AI):
+
+    def __init__(self, name="AI"):
+        super().__init__(name)
+        self.start_sticks = None
         self.goodness = None
         self.taken_by = None
         self.gradients = None
 
     def zero_array(self):
-        return [0 for _ in range(self.stick.start_sticks)]
+        return [0 for _ in range(self.start_sticks)]
 
     def rand_array(self):
-        return [random.randint(-1,1) for _ in range(self.stick.start_sticks)]
+        return [random.randint(-1,1) for _ in range(self.start_sticks)]
 
     def query(self, stick):
+        if self.start_sticks is None:
+            self.start_sticks = stick.start_sticks
         if self.goodness is None:
             self.goodness = self.rand_array()
         if self.taken_by is None:
@@ -88,6 +107,10 @@ class AI(Player):
     def zero_grad(self):
         self.gradients = None
 
+    def print_weights(self):
+        print(self.name, "WEIGHTS", ",".join([f"{v:3d}" for v in self.goodness]))
+
+
 
 def argmax(values):
     best_index = None
@@ -100,6 +123,7 @@ def argmax(values):
 
 
 def play(stick, players):
+    players = random.sample(players, k=len(players))
     previous_player = None
     while stick.sticks > 0:
         for player in players:
@@ -111,27 +135,27 @@ def play(stick, players):
     return previous_player
 
 
-def main():
+def main_org():
     """Learning by playing agains human"""
     stick = PickStick(21)
     player_h = Human()
-    player_ai = AI(stick)
+    player_ai = AI_org()
     players = [player_h, player_ai]
     while True:
         stick.reset()
         winner = play(stick, players)
         winner.wins += 1
         print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
-        player_ai.zero_grad()
-        player_ai.backward(winner)
-        player_ai.step()
-        print("DEBUG", player_ai.goodness)
+        player_ai.zero_grad()  # optimizer.zero_grad()
+        player_ai.backward(winner)  # loss.backward()
+        player_ai.step()  # optimizer.step()
+        player_ai.print_weights()
 
 
-def main_rl():
+def main_org_rl():
     """Learning by playing against itself"""
     stick = PickStick(21)
-    players = [AI(stick), AI(stick)]
+    players = [AI_org(name="Ava"), AI_org(name="HAL 9000")]
     for game in range(10):
         stick.reset()
         winner = play(stick, players)
@@ -141,8 +165,18 @@ def main_rl():
             player_ai.zero_grad()
             player_ai.backward(winner)
             player_ai.step()
-            print("DEBUG", ",".join([f"{v:3d}" for v in player_ai.goodness]))
+            player_ai.print_weights()
+
+    players = [Human(), random.choice(players)]
+    players[1].wins = 0
+    print("Playing against", players[1].name)
+    while True:
+        stick.reset()
+        winner = play(stick, players)
+        winner.wins += 1
+        print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
+
 
 
 if __name__ == '__main__':
-    main_rl()
+    main_org_rl()
