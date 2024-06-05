@@ -5,11 +5,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
+from typing_extensions import override
 
-from picker import PickStick, play, Human, AI
+from human_player import Human
+from picker import PickStick, play, ComputerBase
 
 
-class AI_net(AI):
+class Reinforced(ComputerBase):
     def __init__(self, name="AI_net"):
         super().__init__(name=name)
         self.gamma = -0.999
@@ -38,6 +40,7 @@ class AI_net(AI):
     def eval(self):
         self.train = False
 
+    @override
     def query(self, stick):
         observation = self.prepare_inputs(stick)
         actions = self.value_net(observation)
@@ -59,13 +62,18 @@ class AI_net(AI):
             self.rb.append((observation, reward, take_action))
         return take_action
 
+    @override
+    def print_weights(self):
+        print(self.name, "WEIGHTS", self.value_net.state_dict())
 
-def main_net_rl():
+
+
+def main_reinforced():
     """Learning by playing against itself"""
     logger = SummaryWriter()
     global_step = 0
     stick = PickStick(21)
-    players = [AI_net(name="Ava"), AI_net(name="HAL 9000")]
+    players = [Reinforced(name="Ava"), Reinforced(name="HAL 9000")]
     optimizers = [torch.optim.SGD(p.value_net.parameters(), lr=3e-3) for p in players]
     for game in range(10000):
         stick.reset()
@@ -102,7 +110,8 @@ def main_net_rl():
                 loss.backward()
                 optimizer.step()
 
-            player_ai.print_weights()
+            if game % 1000 == 0:
+                player_ai.print_weights()
 
     logger.close()
 
@@ -117,4 +126,4 @@ def main_net_rl():
         print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
 
 if __name__ == '__main__':
-    main_net_rl()
+    main_reinforced()

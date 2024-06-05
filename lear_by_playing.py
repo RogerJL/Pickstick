@@ -1,9 +1,10 @@
 import random
+from typing_extensions import override
 
-from picker import AI, PickStick, Human, play, argmax
+from picker import ComputerBase, PickStick, Human, play, argmax
 
 
-class Learner(AI):
+class Learner(ComputerBase):
 
     def __init__(self, name="AI"):
         super().__init__(name)
@@ -18,6 +19,7 @@ class Learner(AI):
     def rand_array(self):
         return [random.randint(-1, 1) for _ in range(self.start_sticks)]
 
+    @override
     def query(self, stick):
         if self.start_sticks is None:
             self.start_sticks = stick.start_sticks
@@ -44,6 +46,7 @@ class Learner(AI):
     def zero_grad(self):
         self.gradients = None
 
+    @override
     def print_weights(self):
         print(self.name, "WEIGHTS", ",".join([f"{v:3d}" for v in self.goodness]))
 

@@ -1,10 +1,11 @@
 import random
 
+from human_player import Human
 from lear_by_playing import Learner
-from picker import PickStick, play, Human
+from picker import PickStick, play
 
 
-def main_org_rl():
+def main_self_play():
     """Learning by playing against itself"""
     stick = PickStick(21)
     players = [Learner(name="Ava"), Learner(name="HAL 9000")]
@@ -30,4 +31,4 @@ def main_org_rl():
 
 
 if __name__ == '__main__':
-    main_org_rl()
+    main_self_play()
