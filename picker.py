@@ -28,17 +28,17 @@ class Player:
         self.name = name
         self.wins = 0
 
-    def query(self, stick):
+    def query(self, stick: PickStick) -> int:
         raise NotImplementedError("query() not implemented")
 
 
 
-class ComputerBase(Player):
+class ComputerPlayer(Player):
     """Base class for all computer implementations"""
     def __init__(self, name="AI"):
         super().__init__(name=name)
 
-    def print_weights(self):
+    def show_weights(self):
         print(self.name, "WEIGHTS", "unknown")
 
 

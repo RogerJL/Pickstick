@@ -1,14 +1,16 @@
 import random
 
 from human_player import Human
-from picker import ComputerBase, PickStick, play
+from picker import ComputerPlayer, PickStick, play
 
 
-class Random(ComputerBase):
-    def query(self, stick: PickStick):
+class Random(ComputerPlayer):
+    @override
+    def query(self, stick: PickStick) -> int:
         return random.randint(1, min(3, stick.sticks))
 
-    def print_weights(self):
+    @override
+    def show_weights(self):
         pass  # Random uses no weights
 
 def main_random():

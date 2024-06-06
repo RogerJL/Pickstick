@@ -18,7 +18,7 @@ def main_self_play():
             player_ai.zero_grad()
             player_ai.backward(winner)
             player_ai.step()
-            player_ai.print_weights()
+            player_ai.show_weights()
 
     players = [Human(), random.choice(players)]
     players[1].wins = 0

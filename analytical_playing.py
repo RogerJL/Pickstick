@@ -1,19 +1,19 @@
 import random
 from typing_extensions import override
 
-from picker import ComputerBase, PickStick, play, Human
+from picker import ComputerPlayer, PickStick, play, Human
 
 
-class Analytical(ComputerBase):
+class Analytical(ComputerPlayer):
     @override
-    def query(self, stick: PickStick):
+    def query(self, stick: PickStick) -> int:
         to_remove = (stick.sticks - 1) % 4
         if to_remove == 0:
             to_remove = random.randint(1, min(3, stick.sticks))
         return to_remove
 
     @override
-    def print_weights(self):
+    def show_weights(self):
         pass  # Analytical uses no weights
 
 

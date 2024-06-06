@@ -1,6 +1,6 @@
 from typing_extensions import override
 
-from picker import Player
+from picker import Player, PickStick
 
 STICK_SYMBOL = " ❙"
 
@@ -11,7 +11,7 @@ class Human(Player):
         self.visual = True
 
     @override
-    def query(self, stick):
+    def query(self, stick: PickStick) -> int:
         picked = '?' if self.verbose else ''
         while True:
             if self.visual:

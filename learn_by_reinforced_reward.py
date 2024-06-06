@@ -8,16 +8,16 @@ from torch.utils.tensorboard import SummaryWriter
 from typing_extensions import override
 
 from human_player import Human
-from picker import PickStick, play, ComputerBase
+from picker import PickStick, play, ComputerPlayer
 
 
-class Reinforced(ComputerBase):
+class Reinforced(ComputerPlayer):
     def __init__(self, name="AI_net"):
         super().__init__(name=name)
         self.gamma = -0.999
         self.epoch = 0
         self.value_net = nn.Sequential(
-            nn.Linear(21, 3),
+            nn.Linear(21, 3, bias=False),
         )
         self.rb = deque(maxlen=10000)
         self.train = True
@@ -41,7 +41,10 @@ class Reinforced(ComputerBase):
         self.train = False
 
     @override
-    def query(self, stick):
+    def query(self, stick: PickStick) -> int:
+        return self._query(stick).item()
+
+    def _query(self, stick: PickStick) -> torch.Tensor:
         observation = self.prepare_inputs(stick)
         actions = self.value_net(observation)
         if self.train:
@@ -63,7 +66,7 @@ class Reinforced(ComputerBase):
         return take_action
 
     @override
-    def print_weights(self):
+    def show_weights(self):
         print(self.name, "WEIGHTS", self.value_net.state_dict())
 
 
@@ -111,7 +114,7 @@ def main_reinforced():
                 optimizer.step()
 
             if game % 1000 == 0:
-                player_ai.print_weights()
+                player_ai.show_weights()
 
     logger.close()
 
@@ -124,6 +127,7 @@ def main_reinforced():
         winner = play(stick, players)
         winner.wins += 1
         print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
+
 
 if __name__ == '__main__':
     main_reinforced()
