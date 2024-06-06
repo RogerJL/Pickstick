@@ -115,6 +115,7 @@ def main_reinforced():
 
             if game % 1000 == 0:
                 player_ai.show_weights()
+                logger.add_tensor(player_ai.name, player_ai.value_net.state_dict()['0.weight'], global_step=global_step)
 
     logger.close()
 
