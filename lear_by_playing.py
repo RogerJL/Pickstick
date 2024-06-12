@@ -1,7 +1,8 @@
 import random
 from typing_extensions import override
 
-from picker import ComputerPlayer, PickStick, Human, play, argmax
+from human_player import Human
+from picker import ComputerPlayer, PickStick, play, argmax
 
 
 class Learner(ComputerPlayer):
