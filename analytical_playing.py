@@ -1,7 +1,8 @@
 import random
 from typing_extensions import override
 
-from picker import ComputerPlayer, PickStick, play, Human
+from human_player import Human
+from picker import ComputerPlayer, PickStick, play
 
 
 class Analytical(ComputerPlayer):
@@ -15,7 +16,6 @@ class Analytical(ComputerPlayer):
     @override
     def show_weights(self):
         pass  # Analytical uses no weights
-
 
 
 def main_analytical():

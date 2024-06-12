@@ -32,7 +32,6 @@ class Player:
         raise NotImplementedError("query() not implemented")
 
 
-
 class ComputerPlayer(Player):
     """Base class for all computer implementations"""
     def __init__(self, name="AI"):

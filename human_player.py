@@ -4,6 +4,7 @@ from picker import Player, PickStick
 
 STICK_SYMBOL = " ❙"
 
+
 class Human(Player):
     def __init__(self):
         super().__init__("Human")

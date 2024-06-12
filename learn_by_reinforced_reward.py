@@ -22,7 +22,6 @@ class Reinforced(ComputerPlayer):
         self.rb = deque(maxlen=10000)
         self.train = True
 
-
     def sample(self):
         assert self.train, "AI_net must in train mode"
         pos = random.randrange(0, len(self.rb))
@@ -32,7 +31,8 @@ class Reinforced(ComputerPlayer):
         return self.prepare_inputs2(stick.sticks, num_classes=stick.start_sticks)
 
     def prepare_inputs2(self, pos, num_classes):
-        return nn.functional.one_hot(torch.Tensor([pos - 1]).type(torch.int64), num_classes=num_classes).type(torch.float32)
+        return nn.functional.one_hot(torch.Tensor([pos - 1]).type(torch.int64),
+                                     num_classes=num_classes).type(torch.float32)
 
     def train(self):
         self.train = True
@@ -70,7 +70,6 @@ class Reinforced(ComputerPlayer):
         print(self.name, "WEIGHTS", self.value_net.state_dict())
 
 
-
 def main_reinforced():
     """Learning by playing against itself"""
     logger = SummaryWriter()
@@ -93,7 +92,8 @@ def main_reinforced():
                         actions_next = torch.Tensor()
                         td_target = reward
                     else:
-                        actions_next = player_ai.value_net(player_ai.prepare_inputs2(observation_next, stick.start_sticks))
+                        actions_next = player_ai.value_net(player_ai.prepare_inputs2(observation_next,
+                                                                                     stick.start_sticks))
                         impossible = observation_next
                         actions_next[:, impossible:] = -1000
                         target_max, _ = torch.max(actions_next, dim=1, keepdim=True)
@@ -102,7 +102,7 @@ def main_reinforced():
                 index = action - 1
                 action_est = player_ai.value_net(observation)
                 td_est = action_est.gather(1, index)
-                #print(f"{torch.argmax(observation).item()+1:2d}, {action.detach().numpy()}, {reward.item():-7.2f}",
+                # print(f"{torch.argmax(observation).item()+1:2d}, {action.detach().numpy()}, {reward.item():-7.2f}",
                 #      "action est", action_est.detach().numpy(), td_est.item(),
                 #      "action next", actions_next.numpy(), td_target.item())
                 loss = F.mse_loss(td_est, td_target)

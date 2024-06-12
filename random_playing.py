@@ -1,4 +1,5 @@
 import random
+from typing import override
 
 from human_player import Human
 from picker import ComputerPlayer, PickStick, play
@@ -12,6 +13,7 @@ class Random(ComputerPlayer):
     @override
     def show_weights(self):
         pass  # Random uses no weights
+
 
 def main_random():
     """Learning by playing analytical solution."""
