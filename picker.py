@@ -25,11 +25,28 @@ class PickStick:
 
 class Player:
     def __init__(self, name):
-        self.name = name
-        self.wins = 0
+        self._name = name
+        self._wins = 0
 
-    def query(self, stick: PickStick) -> int:
+    def query(self, game: PickStick) -> int:
         raise NotImplementedError("query() not implemented")
+
+    def update(self, win: bool) -> None:
+        pass
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def wins(self) -> int:
+        return self._wins
+
+    def increment_wins(self):
+        self._wins += 1
+
+    def reset_wins(self):
+        self._wins = 0
 
 
 class ComputerPlayer(Player):
@@ -63,3 +80,20 @@ def play(stick, players):
                 break
             previous_player = player
     return previous_player
+
+
+def update(players: list[Player], winner: Player):
+    winner.increment_wins()
+    for player in players:
+        player.update(win=player is winner)
+
+
+def play_best_of(game, players):
+    for player in players:
+        player.reset_wins()
+    print("Playing against", players[1].name)
+    while True:
+        game.reset()
+        winner = play(game, players)
+        update(players, winner)
+        print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))

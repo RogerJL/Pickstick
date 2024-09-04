@@ -1,33 +1,23 @@
 import random
 
 from human_player import Human
-from lear_by_playing import Learner
-from picker import PickStick, play
+from learn_by_playing import Learner
+from picker import PickStick, play, update, play_best_of
 
 
 def main_self_play():
     """Learning by playing against itself"""
-    stick = PickStick(21)
+    game = PickStick(21)
     players = [Learner(name="Ava"), Learner(name="HAL 9000")]
-    for game in range(10):
-        stick.reset()
-        winner = play(stick, players)
-        winner.wins += 1
+    for game_no in range(10):
+        game.reset()
+        winner = play(game, players)
+        update(players, winner)
         print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
-        for player_ai in players:
-            player_ai.zero_grad()
-            player_ai.backward(winner)
-            player_ai.step()
-            player_ai.show_weights()
 
-    players = [Human(), random.choice(players)]
-    players[1].wins = 0
-    print("Playing against", players[1].name)
-    while True:
-        stick.reset()
-        winner = play(stick, players)
-        winner.wins += 1
-        print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
+    # Select one of the trained AIs to let the human play against
+    play_best_of(game,
+                 [Human(), random.choice(players)])
 
 
 if __name__ == '__main__':

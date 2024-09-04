@@ -2,7 +2,7 @@ import random
 from typing_extensions import override
 
 from human_player import Human
-from picker import ComputerPlayer, PickStick, play, argmax
+from picker import ComputerPlayer, PickStick, argmax, play_best_of
 
 
 class Learner(ComputerPlayer):
@@ -21,22 +21,22 @@ class Learner(ComputerPlayer):
         return [random.randint(-1, 1) for _ in range(self.start_sticks)]
 
     @override
-    def query(self, stick: PickStick) -> int:
+    def query(self, game: PickStick) -> int:
         if self.start_sticks is None:
-            self.start_sticks = stick.start_sticks
+            self.start_sticks = game.start_sticks
         if self.goodness is None:
             self.goodness = self.rand_array()
         if self.taken_by is None:
             self.taken_by = self.zero_array()
-        if stick.sticks < stick.start_sticks:
-            self.taken_by[stick.sticks] = -1
-        index, _ = argmax([self.goodness[pos - 1] for pos in stick.range()])
+        if game.sticks < game.start_sticks:
+            self.taken_by[game.sticks] = -1
+        index, _ = argmax([self.goodness[pos - 1] for pos in game.range()])
         to_remove = index + 1
-        self.taken_by[stick.sticks - to_remove] = +1
+        self.taken_by[game.sticks - to_remove] = +1
         return to_remove
 
-    def backward(self, winner):
-        gradient = 1 if winner == self else -1
+    def backward(self, win):
+        gradient = 1 if win else -1
         self.gradients = [who * gradient for who in self.taken_by]
         self.taken_by = self.zero_array()
 
@@ -51,22 +51,18 @@ class Learner(ComputerPlayer):
     def show_weights(self):
         print(self.name, "WEIGHTS", ",".join([f"{v:3d}" for v in self.goodness]))
 
+    @override
+    def update(self, win: bool) -> None:
+        self.zero_grad()  # optimizer.zero_grad()
+        self.backward(win)  # loss.backward()
+        self.step()  # optimizer.step()
+        self.show_weights()
+
 
 def main_org():
     """Learning by playing against human"""
-    stick = PickStick(21)
-    player_h = Human()
-    player_ai = Learner()
-    players = [player_h, player_ai]
-    while True:
-        stick.reset()
-        winner = play(stick, players)
-        winner.wins += 1
-        print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
-        player_ai.zero_grad()  # optimizer.zero_grad()
-        player_ai.backward(winner)  # loss.backward()
-        player_ai.step()  # optimizer.step()
-        player_ai.show_weights()
+    play_best_of(PickStick(21),
+                 [(Human()), (Learner())])
 
 
 if __name__ == '__main__':

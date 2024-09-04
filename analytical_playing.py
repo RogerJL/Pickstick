@@ -2,15 +2,15 @@ import random
 from typing_extensions import override
 
 from human_player import Human
-from picker import ComputerPlayer, PickStick, play
+from picker import ComputerPlayer, PickStick, play_best_of
 
 
 class Analytical(ComputerPlayer):
     @override
-    def query(self, stick: PickStick) -> int:
-        to_remove = (stick.sticks - 1) % 4
+    def query(self, game: PickStick) -> int:
+        to_remove = (game.sticks - 1) % 4
         if to_remove == 0:
-            to_remove = random.randint(1, min(3, stick.sticks))
+            to_remove = random.randint(1, min(3, game.sticks))
         return to_remove
 
     @override
@@ -20,15 +20,8 @@ class Analytical(ComputerPlayer):
 
 def main_analytical():
     """Learning by playing analytical solution."""
-    stick = PickStick(21)
-
-    players = [Human(), Analytical()]
-    print("Playing against", players[1].name)
-    while True:
-        stick.reset()
-        winner = play(stick, players)
-        winner.wins += 1
-        print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
+    play_best_of(PickStick(21),
+                 [Human(), Analytical()])
 
 
 if __name__ == '__main__':

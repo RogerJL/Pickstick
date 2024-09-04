@@ -41,8 +41,8 @@ class Reinforced(ComputerPlayer):
         self.train = False
 
     @override
-    def query(self, stick: PickStick) -> int:
-        return self._query(stick).item()
+    def query(self, game: PickStick) -> int:
+        return self._query(game).item()
 
     def _query(self, stick: PickStick) -> torch.Tensor:
         observation = self.prepare_inputs(stick)
@@ -80,7 +80,7 @@ def main_reinforced():
     for game in range(10000):
         stick.reset()
         winner = play(stick, players)
-        winner.wins += 1
+        winner.increment_wins()
         print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
         for player_ai, optimizer in zip(players, optimizers):
             for s in range(10):
@@ -120,13 +120,13 @@ def main_reinforced():
     logger.close()
 
     players = [Human(), random.choice(players)]
-    players[1].wins = 0
+    players[1].reset_wins()
     players[1].eval()
     print("Playing against", players[1].name)
     while True:
         stick.reset()
         winner = play(stick, players)
-        winner.wins += 1
+        winner.increment_wins()
         print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
 
 
