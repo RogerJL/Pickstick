@@ -16,7 +16,7 @@ class Random(ComputerPlayer):
 
 
 def main_random():
-    """Learning by playing analytical solution."""
+    """Just playing by picking a random number of stick."""
     play_best_of(PickStick(21),
                  [Human(), Random()])
 

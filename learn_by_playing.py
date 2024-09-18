@@ -13,6 +13,7 @@ class Learner(ComputerPlayer):
         self.goodness = None
         self.taken_by = None
         self.gradients = None
+        self._show_weights = False  # Change to True to see how weights change
 
     def zero_array(self):
         return [0 for _ in range(self.start_sticks)]
@@ -49,7 +50,8 @@ class Learner(ComputerPlayer):
 
     @override
     def show_weights(self):
-        print(self.name, "WEIGHTS", ",".join([f"{v:3d}" for v in self.goodness]))
+        if self._show_weights:
+            print(self.name, "WEIGHTS", ",".join([f"{v:3d}" for v in self.goodness]))
 
     @override
     def update(self, win: bool) -> None:
