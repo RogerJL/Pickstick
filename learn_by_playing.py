@@ -61,11 +61,11 @@ class Learner(ComputerPlayer):
         self.show_weights()
 
 
-def main_org():
+def main_learn():
     """Learning by playing against human"""
     play_best_of(PickStick(21),
                  [(Human()), (Learner())])
 
 
 if __name__ == '__main__':
-    main_org()
+    main_learn()

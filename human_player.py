@@ -1,13 +1,13 @@
 from typing_extensions import override
 
-from picker import Player, PickStick
+from picker import Player, PickStick, play_best_of
 
 STICK_SYMBOL = " ❙"
 
 
 class Human(Player):
-    def __init__(self):
-        super().__init__("Human")
+    def __init__(self, name="Human"):
+        super().__init__(name)
         self.verbose = True
         self.visual = True
 
@@ -29,9 +29,19 @@ class Human(Player):
                 if picked == '?':
                     print(f"You can pick {game.min} to {game.max} sticks")
                     print(f"Picker of last stick looses")
-            picked = input(f"How many sticks do you want to pick [?, {game.min}..{min(game.max, game.sticks)}] ")
+            picked = input(f"{'So' if self.name == 'Human' else self.name}, how many sticks do you want to pick [?, {game.min}..{min(game.max, game.sticks)}] ")
             if picked.isalnum():
                 picked = int(picked)
                 if game.min <= picked <= game.max and picked <= game.sticks:
                     return picked
                 print("ERROR Choose too many or too few sticks")
+
+
+def main_human():
+    """Human playing against Human"""
+    play_best_of(PickStick(21),
+                 [(Human("Anna")), (Human("Bertil"))])
+
+
+if __name__ == '__main__':
+    main_human()
