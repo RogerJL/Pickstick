@@ -23,23 +23,16 @@ This project implements several AIs for a simple Nim game often named 21 sticks.
 ### Implementation detail
 Common code in `picker.py` but `human_player.py` is used as default opponent.
 
-## How to run
-`python` required
+## How to run without installs
+1. download zip via `<>Code` button and unzip
+2. extract files to local folder
+3. open https://colab.research.google.com/ in modern browser (Chrome...)
+4. Upload by selecting the extracted file `Pickstick.ipynb`
+5. Colab needs the python files `*.py` too
+>Files folder (folder icon to the left), then upload file (document with up arrow)
+select all .py files.
+>
+>_Note_: it is also possible to have these on a google drive
 
-### Clone the Repository or download and unzip
-`git` optional
-
-Clone the GitHub repository to your local machine using the following command:
-
-`git clone https://github.com/RogerJL/Pickstick`
-
-or download zip via `<>Code` button and unzip
-
-
-
-### Run Your Python Code:
-If your Python code is in a single script, navigate to the repository folder and run the script:
-
-`cd your-repo`
-
-`python your_script.py`
+6. Klick on play button of the first section - should run without failure
+7. Klick on play button of second section - game starts in window
