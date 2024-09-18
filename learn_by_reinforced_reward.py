@@ -10,6 +10,8 @@ from typing_extensions import override
 from human_player import Human
 from picker import PickStick, play, ComputerPlayer
 
+REPORT_AFTER = 1000
+
 SELF_PLAY_GAMES = 10000
 
 
@@ -84,11 +86,13 @@ def main_reinforced():
     stick = PickStick(21)
     players = [Reinforced(name="Ava"), Reinforced(name="HAL 9000")]
     optimizers = [torch.optim.SGD(p.value_net.parameters(), lr=3e-3) for p in players]
+    print("Training (2-4 minutes, HW acceleration might help in Colab - Change runtime type)")
     for game in range(SELF_PLAY_GAMES):
         stick.reset()
         winner = play(stick, players)
         winner.increment_wins()
-        print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
+        if game % REPORT_AFTER == REPORT_AFTER - 1:
+            print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
         # Update weights
         for player_ai, optimizer in zip(players, optimizers):
             for s in range(10):
@@ -121,9 +125,9 @@ def main_reinforced():
                 loss.backward()
                 optimizer.step()
 
-            if game % 1000 == 0:
-                player_ai.show_weights()
-                logger.add_tensor(player_ai.name, player_ai.value_net.state_dict()['0.weight'], global_step=global_step)
+        if game % REPORT_AFTER == REPORT_AFTER - 1:
+            player_ai.show_weights()
+            logger.add_tensor(player_ai.name, player_ai.value_net.state_dict()['0.weight'], global_step=global_step)
 
     logger.close()
 
