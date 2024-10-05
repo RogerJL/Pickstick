@@ -10,6 +10,14 @@ from typing_extensions import override
 from human_player import Human
 from picker import PickStick, play, ComputerPlayer
 
+BATCH_SIZE = 10
+
+REMOVE_MAX = 3
+
+STICKS = 21
+
+KEEP_MOVES = 100
+
 REPORT_AFTER = 1000
 
 SELF_PLAY_GAMES = 10000
@@ -21,9 +29,9 @@ class Reinforced(ComputerPlayer):
         self.gamma = -0.999  # Trusting future estimates? Note: Next move is by opponent, use a negative gamma
         self.epoch = 0
         self.value_net = nn.Sequential(
-            nn.Linear(21, 3, bias=False),
+            nn.Linear(STICKS, REMOVE_MAX, bias=False),
         )
-        self.rb = deque(maxlen=10000)
+        self.rb = deque(maxlen=KEEP_MOVES)
         self.train = True
         self._show_weights = False  # Change to True to see how weights change
 
@@ -95,7 +103,7 @@ def main_reinforced():
             print("WINS", "\t".join([f"{p.name}: {p.wins:3d}" for p in players]))
         # Update weights
         for player_ai, optimizer in zip(players, optimizers):
-            for s in range(10):
+            for s in range(BATCH_SIZE):
                 global_step += 1
                 observation, reward, action = player_ai.sample_record()  # Sample one move from all recorded
                 observation_next = torch.argmax(observation) + 1 - action  # Hint: argmax is inverse of one_hot
