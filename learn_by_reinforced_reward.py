@@ -10,23 +10,33 @@ from typing_extensions import override
 from human_player import Human
 from picker import PickStick, play, ComputerPlayer
 
-BATCH_SIZE = 10
-
+#
+# Game specific
+#
 REMOVE_MAX = 3
-
 STICKS = 21
+GAMMA = -0.999  # Trusting future estimates? Note: Next move is by opponent, use a negative gamma
+PUNISHMENT_IF_TAKING_LAST_STICK = -100.0  # a "reward", i.e. indicating loss
 
+#
+# Hyperparametrar
+#
+BATCH_SIZE = 10
 KEEP_MOVES = 100
+SELF_PLAY_GAMES = 2000
+LEARNING_RATE = 3e-3
 
+#
+# UI
+#
 REPORT_AFTER = 1000
 
-SELF_PLAY_GAMES = 10000
 
 
 class Reinforced(ComputerPlayer):
     def __init__(self, name="AI_net"):
         super().__init__(name=name)
-        self.gamma = -0.999  # Trusting future estimates? Note: Next move is by opponent, use a negative gamma
+        self.gamma = GAMMA
         self.epoch = 0
         self.value_net = nn.Sequential(
             nn.Linear(STICKS, REMOVE_MAX, bias=False),
@@ -67,7 +77,7 @@ class Reinforced(ComputerPlayer):
         actions = self.value_net(observation)
         if self.train:
             # fully random action
-            best_index = torch.rand(size=(actions.shape[0], 1)) * min(stick.sticks, 3)
+            best_index = torch.rand(size=(actions.shape[0], 1)) * min(stick.sticks, REMOVE_MAX)
             best_index = best_index.type(torch.int64)
         else:
             # best_index = torch.multinomial(torch.softmax(actions, 1), 1).reshape((actions.shape[0], 1))
@@ -76,7 +86,7 @@ class Reinforced(ComputerPlayer):
         take_action[take_action > stick.sticks] = stick.sticks
         if self.train:
             reward = torch.where(stick.sticks - take_action == 0,
-                                 -100.0,  # loose if taking last
+                                 PUNISHMENT_IF_TAKING_LAST_STICK,
                                  0)
             self.record((observation, reward, take_action))
         return take_action
@@ -91,10 +101,10 @@ def main_reinforced():
     """Learning by playing against itself"""
     logger = SummaryWriter()
     global_step = 0
-    stick = PickStick(21)
+    stick = PickStick(STICKS)
     players = [Reinforced(name="Ava"), Reinforced(name="HAL 9000")]
-    optimizers = [torch.optim.SGD(p.value_net.parameters(), lr=3e-3) for p in players]
-    print("Training (2-4 minutes, HW acceleration might help in Colab - Change runtime type)")
+    optimizers = [torch.optim.SGD(p.value_net.parameters(), lr=LEARNING_RATE) for p in players]
+    print("Training (1 minute, HW acceleration might help in Colab - Change runtime type)")
     for game in range(SELF_PLAY_GAMES):
         stick.reset()
         winner = play(stick, players)
