@@ -1,5 +1,5 @@
 import random
-from typing import override
+from typing_extensions import override
 
 from human_player import Human
 from picker import ComputerPlayer, PickStick, play, update, play_best_of
