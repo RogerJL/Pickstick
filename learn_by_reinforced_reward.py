@@ -25,6 +25,7 @@ BATCH_SIZE = 10
 KEEP_MOVES = 100
 SELF_PLAY_GAMES = 2000
 LEARNING_RATE = 3e-3
+EPSILON = 1.00  # Exploration
 
 #
 # UI
@@ -37,6 +38,7 @@ class Reinforced(ComputerPlayer):
     def __init__(self, name="AI_net"):
         super().__init__(name=name)
         self.gamma = GAMMA
+        self.epsilon = EPSILON
         self.epoch = 0
         self.value_net = nn.Sequential(
             nn.Linear(STICKS, REMOVE_MAX, bias=False),
@@ -75,8 +77,8 @@ class Reinforced(ComputerPlayer):
     def _query(self, stick: PickStick) -> torch.Tensor:
         observation = self.prepare_inputs(stick)
         actions = self.value_net(observation)
-        if self.train:
-            # fully random action
+        if self.train and random.random() < self.epsilon:
+            # fully random action, exploration
             best_index = torch.rand(size=(actions.shape[0], 1)) * min(stick.sticks, REMOVE_MAX)
             best_index = best_index.type(torch.int64)
         else:
