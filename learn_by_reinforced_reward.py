@@ -25,7 +25,7 @@ BATCH_SIZE = 10
 KEEP_MOVES = 100
 SELF_PLAY_GAMES = 2000
 LEARNING_RATE = 3e-3
-EPSILON = 1.00  # Exploration
+EPSILON = 0.9  # Exploration
 
 #
 # UI
