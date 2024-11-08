@@ -4,7 +4,7 @@ from human_player import Human
 from learn_by_playing import Learner
 from picker import PickStick, play, update, play_best_of
 
-SELF_PLAY_GAMES = 20
+SELF_PLAY_GAMES = 7
 
 
 def main_self_play():
